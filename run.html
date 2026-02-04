@@ -3,85 +3,176 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>微信安全验证</title>
+<title>系统验证中…</title>
 
 <style>
 body {
     margin: 0;
-    background: #f5f5f5;
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+    background: #0f1115;
+    color: #00ff9c;
+    font-family: monospace;
     overflow: hidden;
 }
 
-.container {
-    margin-top: 30vh;
+#header {
+    padding: 10px;
+    background: #111;
     text-align: center;
+    font-size: 14px;
 }
 
-h1 {
-    font-size: 22px;
-    margin-bottom: 30px;
+#main {
+    display: flex;
+    height: calc(100vh - 40px);
+}
+
+.panel {
+    flex: 1;
+    border-right: 1px solid #222;
+    padding: 8px;
+    font-size: 12px;
+    overflow: hidden;
+}
+
+#logs {
+    white-space: pre-line;
+    animation: flicker 0.15s infinite alternate;
+}
+
+@keyframes flicker {
+    from { opacity: 1; }
+    to { opacity: 0.85; }
+}
+
+.progress {
+    width: 100%;
+    height: 10px;
+    background: #222;
+    margin: 6px 0;
+}
+.bar {
+    height: 100%;
+    width: 1%;
+    background: #00ff9c;
 }
 
 button {
-    width: 220px;
-    height: 48px;
-    font-size: 16px;
-    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 12px;
+    margin: 4px;
     border: none;
-    color: white;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 #btnA {
     position: absolute;
     background: #07c160;
+    color: #000;
 }
 
 #btnB {
     background: #999;
+    color: #000;
+}
+
+#exit {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: #ff5c5c;
+    color: #000;
+    z-index: 9999;
+}
+
+.countdown {
+    font-size: 14px;
+    margin: 6px 0;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-    <h1>⚠️ 微信安全验证</h1>
-    <button id="btnA">A：返回</button><br><br>
-    <button id="btnB">B：留下来</button>
+<div id="header">
+⚠️ 系统完整性验证中 · 请勿关闭页面
 </div>
 
+<div id="main">
+    <div class="panel">
+        <div class="countdown">模块 A 倒计时：<span id="t1">12</span></div>
+        <div class="countdown">模块 B 倒计时：<span id="t2">8</span></div>
+        <div class="countdown">模块 C 倒计时：<span id="t3">20</span></div>
+
+        <div class="progress"><div class="bar" id="p1"></div></div>
+        <div class="progress"><div class="bar" id="p2"></div></div>
+        <div class="progress"><div class="bar" id="p3"></div></div>
+
+        <button id="btnB">B：留下来</button>
+    </div>
+
+    <div class="panel" id="logs"></div>
+</div>
+
+<button id="btnA">A：返回</button>
+<button id="exit" onclick="exitNow()">安全退出</button>
+
 <script>
-const btnA = document.getElementById("btnA");
-let speed = 1;
+// ===== 日志刷屏 =====
+const logs = document.getElementById("logs");
+setInterval(() => {
+    logs.textContent +=
+        "[SYS] module_" + Math.floor(Math.random()*99) +
+        " status = " + ["OK","WARN","FAIL"][Math.floor(Math.random()*3)] + "\n";
+    logs.scrollTop = logs.scrollHeight;
+}, 120);
 
-// 初始位置
-moveA();
-
-function moveA() {
-    const x = Math.random() * (window.innerWidth - 220);
-    const y = Math.random() * (window.innerHeight - 60);
-    btnA.style.left = x + "px";
-    btnA.style.top = y + "px";
-    speed += 0.3; // 越来越快
+// ===== 假进度条 =====
+function fakeProgress(id) {
+    let v = 1;
+    setInterval(() => {
+        v += Math.random() * 5;
+        if (v > 97) v = 30 + Math.random()*20;
+        document.getElementById(id).style.width = v + "%";
+    }, 300);
 }
+fakeProgress("p1");
+fakeProgress("p2");
+fakeProgress("p3");
 
-// 手指靠近就跑
-btnA.addEventListener("touchstart", moveA);
+// ===== 倒计时互相打架 =====
+function chaosTimer(id, start) {
+    let t = start;
+    setInterval(() => {
+        t += Math.random() > 0.5 ? -1 : 2;
+        if (t < 0) t = start;
+        document.getElementById(id).textContent = t;
+    }, 700);
+}
+chaosTimer("t1", 12);
+chaosTimer("t2", 8);
+chaosTimer("t3", 20);
+
+// ===== A 按钮乱跑 =====
+const btnA = document.getElementById("btnA");
+function moveA() {
+    btnA.style.left = Math.random() * (window.innerWidth - 120) + "px";
+    btnA.style.top = Math.random() * (window.innerHeight - 40) + "px";
+}
+moveA();
 btnA.addEventListener("mouseover", moveA);
+btnA.addEventListener("touchstart", moveA);
 
-// B：假留下，真返回
-document.getElementById("btnB").onclick = function () {
-    alert("你以为你留下了，其实你被放走了 👋");
-    location.reload();
+// ===== B 按钮混乱反应 =====
+document.getElementById("btnB").onclick = () => {
+    alert(["验证中…","状态异常","操作被忽略","请稍后再试"][Math.floor(Math.random()*4)]);
 };
 
-// 禁用返回键
-history.pushState(null, null, location.href);
-window.addEventListener("popstate", function () {
-    history.pushState(null, null, location.href);
-    alert("请完成安全验证");
-});
+// ===== 安全退出 =====
+function exitNow() {
+    alert("演示结束 👋 这是一个整蛊页面");
+    location.href = "about:blank";
+}
 </script>
 
 </body>
