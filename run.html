@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>诈骗页面</title>
+<title>微信安全验证</title>
 
 <style>
 body {
@@ -13,14 +13,18 @@ body {
     overflow: hidden;
 }
 
-h1 {
+.container {
+    margin-top: 30vh;
     text-align: center;
-    margin-top: 80px;
-    font-size: 24px;
 }
 
-#btnA, #btnB {
-    width: 200px;
+h1 {
+    font-size: 22px;
+    margin-bottom: 30px;
+}
+
+button {
+    width: 220px;
     height: 48px;
     font-size: 16px;
     border-radius: 10px;
@@ -30,12 +34,10 @@ h1 {
 
 #btnA {
     position: absolute;
-    background: #07c160; /* 微信绿 */
+    background: #07c160;
 }
 
 #btnB {
-    display: block;
-    margin: 40px auto;
     background: #999;
 }
 </style>
@@ -43,34 +45,43 @@ h1 {
 
 <body>
 
-<h1>哈哈你被诈骗了 😂</h1>
-
-<button id="btnA">A：返回</button>
-
-<button id="btnB" onclick="stay()">B：留下来</button>
+<div class="container">
+    <h1>⚠️ 微信安全验证</h1>
+    <button id="btnA">A：返回</button><br><br>
+    <button id="btnB">B：留下来</button>
+</div>
 
 <script>
 const btnA = document.getElementById("btnA");
+let speed = 1;
 
 // 初始位置
-moveButton();
+moveA();
 
-function moveButton() {
-    const x = Math.random() * (window.innerWidth - 200);
+function moveA() {
+    const x = Math.random() * (window.innerWidth - 220);
     const y = Math.random() * (window.innerHeight - 60);
     btnA.style.left = x + "px";
     btnA.style.top = y + "px";
+    speed += 0.3; // 越来越快
 }
 
-// 微信里：手指一靠近就跑
-btnA.addEventListener("touchstart", moveButton);
-btnA.addEventListener("mouseover", moveButton);
+// 手指靠近就跑
+btnA.addEventListener("touchstart", moveA);
+btnA.addEventListener("mouseover", moveA);
 
-// B 按钮
-function stay() {
-    alert("你成功返回了 👋");
+// B：假留下，真返回
+document.getElementById("btnB").onclick = function () {
+    alert("你以为你留下了，其实你被放走了 👋");
     location.reload();
-}
+};
+
+// 禁用返回键
+history.pushState(null, null, location.href);
+window.addEventListener("popstate", function () {
+    history.pushState(null, null, location.href);
+    alert("请完成安全验证");
+});
 </script>
 
 </body>
