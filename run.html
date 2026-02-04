@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>诈骗页面</title>
+
+<style>
+body {
+    margin: 0;
+    background: #f5f5f5;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+    overflow: hidden;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 80px;
+    font-size: 24px;
+}
+
+#btnA, #btnB {
+    width: 200px;
+    height: 48px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: none;
+    color: white;
+}
+
+#btnA {
+    position: absolute;
+    background: #07c160; /* 微信绿 */
+}
+
+#btnB {
+    display: block;
+    margin: 40px auto;
+    background: #999;
+}
+</style>
+</head>
+
+<body>
+
+<h1>哈哈你被诈骗了 😂</h1>
+
+<button id="btnA">A：返回</button>
+
+<button id="btnB" onclick="stay()">B：留下来</button>
+
+<script>
+const btnA = document.getElementById("btnA");
+
+// 初始位置
+moveButton();
+
+function moveButton() {
+    const x = Math.random() * (window.innerWidth - 200);
+    const y = Math.random() * (window.innerHeight - 60);
+    btnA.style.left = x + "px";
+    btnA.style.top = y + "px";
+}
+
+// 微信里：手指一靠近就跑
+btnA.addEventListener("touchstart", moveButton);
+btnA.addEventListener("mouseover", moveButton);
+
+// B 按钮
+function stay() {
+    alert("你成功返回了 👋");
+    location.reload();
+}
+</script>
+
+</body>
+</html>
